@@ -1,18 +1,31 @@
-import React, { useState } from "react";
-import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
-import DropDownPicker from "react-native-dropdown-picker";
-import * as ImagePicker from "expo-image-picker";
+import React, { useState, useEffect } from "react"
+import {
+  StyleSheet,
+  View,
+  Image,
+  Text,
+  TouchableOpacity,
+  FlatList,
+} from "react-native"
+import DropDownPicker from "react-native-dropdown-picker"
+import * as ImagePicker from "expo-image-picker"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 const ImageUpload = () => {
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null)
+  const [selectedImage, setSelectedImage] = useState(null)
+  const [imageList, setImageList] = useState([])
   const items = [
     { label: "Item 1", value: "1" },
     { label: "Item 2", value: "2" },
     { label: "Item 3", value: "3" },
     { label: "Item 4", value: "4" },
     { label: "Item 5", value: "5" },
-  ];
+  ]
+
+  useEffect(() => {
+    retrieveImageFromStorage()
+  }, [])
 
   const handleImagePicker = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -20,15 +33,42 @@ const ImageUpload = () => {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
-    });
+    })
 
-    console.log(result);
+     console.log(result)
     // ImageCropPicker.openPicker({
     //   mediaType: "photo",
     // }).then((image) => {
     //   setSelectedImage(image.path)
     // })
-  };
+  
+
+  if (!result.canceled) {
+    console.log("ana")
+    setSelectedImage(result.uri)
+    storeImageToStorage(result.uri)
+  }
+
+}
+
+  const storeImageToStorage = async (imageUri) => {
+    try {
+      await AsyncStorage.setItem("selectedImage", imageUri)
+    } catch (error) {
+      console.log("Error storing image to AsyncStorage:", error)
+    }
+  }
+
+  const retrieveImageFromStorage = async () => {
+    try {
+      const storedImageUri = await AsyncStorage.getItem("selectedImage")
+      if (storedImageUri) {
+        setSelectedImage(storedImageUri)
+      }
+    } catch (error) {
+      console.log("Error retrieving image from AsyncStorage:", error)
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -57,6 +97,7 @@ const ImageUpload = () => {
           placeholder="Select item"
           onChangeItem={(item) => setSelectedItem(item.value)}
         />
+
         <Image
           style={styles.img}
           source={require("./assets/ImageSquare.png")}
@@ -67,7 +108,7 @@ const ImageUpload = () => {
         {selectedImage && (
           <Image
             source={{ uri: selectedImage }}
-            style={{ width: 200, height: 200 }}
+            style={{ width: 200, height: 200, fkex: 1, zIndex: 500 }}
           />
         )}
       </View>
@@ -95,8 +136,8 @@ const ImageUpload = () => {
         </TouchableOpacity>
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -185,6 +226,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#808080",
   },
-});
+})
 
-export default ImageUpload;
+export default ImageUpload
