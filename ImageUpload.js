@@ -1,26 +1,34 @@
-import React, { useState} from "react"
-import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native"
-import DropDownPicker from "react-native-dropdown-picker"
-import ImageCropPicker from "react-native-image-crop-picker"
+import React, { useState } from "react";
+import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
+import * as ImagePicker from "expo-image-picker";
 
 const ImageUpload = () => {
-  const [selectedItem, setSelectedItem] = useState(null)
-  const [selectedImage, setSelectedImage] = useState(null)
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const items = [
     { label: "Item 1", value: "1" },
     { label: "Item 2", value: "2" },
     { label: "Item 3", value: "3" },
     { label: "Item 4", value: "4" },
     { label: "Item 5", value: "5" },
-  ]
+  ];
 
-  const handleImagePicker = () => {
-    ImageCropPicker.openPicker({
-      mediaType: "photo",
-    }).then((image) => {
-      setSelectedImage(image.path)
-    })
-  }
+  const handleImagePicker = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+    // ImageCropPicker.openPicker({
+    //   mediaType: "photo",
+    // }).then((image) => {
+    //   setSelectedImage(image.path)
+    // })
+  };
 
   return (
     <View style={styles.container}>
@@ -53,9 +61,8 @@ const ImageUpload = () => {
           style={styles.img}
           source={require("./assets/ImageSquare.png")}
         />
-        <TouchableOpacity style={styles.fab}>
+        <TouchableOpacity style={styles.fab} onPress={handleImagePicker}>
           <Image source={require("./assets/Fab.png")} />
-          onPress={handleImagePicker}
         </TouchableOpacity>
         {selectedImage && (
           <Image
@@ -88,8 +95,8 @@ const ImageUpload = () => {
         </TouchableOpacity>
       </View>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -178,6 +185,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#808080",
   },
-})
+});
 
-export default ImageUpload
+export default ImageUpload;
